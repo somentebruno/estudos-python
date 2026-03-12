@@ -1,9 +1,14 @@
 /*
-  Project: Travel Management System
-  Description: Database schema and initial data seeding.
+  PROJETO: Sistema de Gestão de Reservas de Viagens
+  DESCRIÇÃO: Definição de esquema relacional (DDL) e carga inicial de dados (DML).
+  FOCO: Integridade referencial e boas práticas de modelagem.
 */
 
--- Schema Creation
+-- =============================================================================
+-- 1. ESTRUTURA (DDL)
+-- =============================================================================
+
+-- Tabela de Clientes
 CREATE TABLE IF NOT EXISTS usuarios (
     id              INT PRIMARY KEY,
     nome            VARCHAR(255) NOT NULL,
@@ -12,12 +17,14 @@ CREATE TABLE IF NOT EXISTS usuarios (
     endereco        VARCHAR(255) NOT NULL
 );
 
+-- Tabela de Catálogo de Destinos
 CREATE TABLE IF NOT EXISTS destinos (
     id              INT PRIMARY KEY,
     nome            VARCHAR(255) NOT NULL UNIQUE,
     descricao       VARCHAR(500) NOT NULL
 );
 
+-- Tabela de Transações de Reservas
 CREATE TABLE IF NOT EXISTS reservas (
     id              INT PRIMARY KEY,
     id_usuario      INT NOT NULL,
@@ -25,11 +32,15 @@ CREATE TABLE IF NOT EXISTS reservas (
     data            DATE NOT NULL,
     status          VARCHAR(50) DEFAULT 'pendente',
     
+    -- Definição de Relacionamentos (Chaves Estrangeiras)
     CONSTRAINT fk_reserva_usuario FOREIGN KEY (id_usuario) REFERENCES usuarios(id),
     CONSTRAINT fk_reserva_destino FOREIGN KEY (id_destino) REFERENCES destinos(id)
 );
 
--- Data Seeding
+-- =============================================================================
+-- 2. CARGA DE DADOS (SEEDS)
+-- =============================================================================
+
 INSERT INTO usuarios (id, nome, email, data_nascimento, endereco) 
 VALUES 
     (1, 'João Silva', 'joao@example.com', '1990-05-15', 'Rua A, 123, Cidade X, Estado Y'),
@@ -48,15 +59,21 @@ VALUES
     (2, 2, 1, '2023-08-05', 'pendente'),
     (3, 3, 3, '2023-09-20', 'cancelada');
 
--- Operations
+-- =============================================================================
+-- 3. MANUTENÇÃO E CONSULTAS OPERACIONAIS
+-- =============================================================================
+
+-- Recuperação de usuários específicos para marketing
 SELECT nome, email 
 FROM usuarios 
 WHERE nome LIKE '%Silva%' 
   AND data_nascimento < '1990-01-01';
 
+-- Atualização cadastral por critério de e-mail (chave de busca)
 UPDATE usuarios 
 SET endereco = 'Nova Rua, 123' 
 WHERE email = 'joao@example.com';
 
+-- Limpeza de registros inconsistentes ou cancelados
 DELETE FROM reservas 
 WHERE status = 'cancelada';
